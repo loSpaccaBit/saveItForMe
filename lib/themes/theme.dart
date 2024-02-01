@@ -36,6 +36,44 @@ class ThemeClass {
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: _themeClass.secondaryColor,
     ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+        minimumSize: MaterialStateProperty.all<Size>(Size(10.0, 10.0)),
+        iconSize: MaterialStateProperty.all<double>(
+            18.0), // Imposta la dimensione minima del bottone
+        iconColor: MaterialStateColor.resolveWith((states) {
+          return _themeClass.textDarkColor;
+        }),
+        backgroundColor: MaterialStateColor.resolveWith((states) {
+          return _themeClass.secondaryColor; // Default color
+        }),
+      ),
+    ),
+    dialogTheme: DialogTheme(
+      backgroundColor: _themeClass.lightPrimaryColor,
+      titleTextStyle: GoogleFonts.nunito(
+        color: _themeClass.textLightColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+      contentTextStyle: GoogleFonts.nunito(
+        color: _themeClass.textLightColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: MaterialStateColor.resolveWith((states) {
+          return _themeClass.lightPrimaryColor;
+        }),
+      ),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -64,6 +102,40 @@ class ThemeClass {
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: _themeClass.secondaryColor,
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+        minimumSize: MaterialStateProperty.all<Size>(Size(10.0, 10.0)),
+        iconSize: MaterialStateProperty.all<double>(18.0),
+        backgroundColor: MaterialStateColor.resolveWith((states) {
+          return _themeClass.secondaryColor; // Default color
+        }),
+      ),
+    ),
+    dialogTheme: DialogTheme(
+      backgroundColor: _themeClass.darkPrimaryColor,
+      titleTextStyle: GoogleFonts.nunito(
+        color: _themeClass.textDarkColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+      contentTextStyle: GoogleFonts.nunito(
+        color: _themeClass.textDarkColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: MaterialStateColor.resolveWith((states) {
+          return _themeClass.darkPrimaryColor;
+        }),
+      ),
     ),
   );
 }
