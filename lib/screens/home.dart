@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:save_it_forme/services/dbHelper.dart';
 import 'package:save_it_forme/themes/circularProgress.dart';
 import 'package:save_it_forme/widgets/popUpAdd.dart';
+import 'package:save_it_forme/widgets/bookMarkCard.dart';
 import 'package:save_it_forme/models/category.dart';
+import 'package:save_it_forme/models/bookMark.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -13,24 +15,44 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Future<List<CategoryMark>>? _bookmarksFuture;
+  Future<List<BookMark>>? _bookMarks;
 
   @override
   void initState() {
     super.initState();
-    _loadBookmarks();
-    _add();
+    _refreshUI();
   }
 
-  Future<void> _loadBookmarks() async {
+  Future<void> _loadCategory() async {
     final List<CategoryMark>? bookmarks = await DatabaseHelper.getAllCategory();
     setState(() {
       _bookmarksFuture = Future.value(bookmarks);
     });
   }
 
-  Future<void> _add() async {
-    CategoryMark mark = CategoryMark(id_category: 2, titolo: 'Dev');
-    await DatabaseHelper.addCategory(mark);
+  Future<void> _loadBookmarks() async {
+    final List<BookMark>? bookmarks = await DatabaseHelper.getAllBookMark();
+    setState(() {
+      _bookMarks = Future.value(bookmarks);
+    });
+  }
+
+  Future<void> _refreshUI() async {
+    await _loadCategory();
+    await _loadBookmarks();
+  }
+
+  Future<void> _showAddDialog() async {
+    bool? bookmarkSaved = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return MyPopup();
+      },
+    );
+
+    if (bookmarkSaved == true) {
+      await _loadBookmarks();
+    }
   }
 
   @override
@@ -41,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 70),
+          SizedBox(height: 50),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -97,14 +119,46 @@ class _HomePageState extends State<HomePage> {
               }
             },
           ),
+          FutureBuilder<List<BookMark>>(
+            future: _bookMarks,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularIndicatorCustom();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+                return Text('No bookmarks available.');
+              } else {
+                // Accedi ai dati come lista di BookMark
+                List<BookMark> bookmarks = snapshot.data!;
+                return Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // number of items in each row
+                      mainAxisSpacing: 8.0, // spacing between rows
+                      crossAxisSpacing: 8.0, // spacing between columns
+                    ),
+                    itemCount: bookmarks.length,
+                    itemBuilder: (context, index) {
+                      return BookMarkCard(
+                        bookMark: bookmarks[index],
+                        onDelete: (bool values) async {
+                          if (values == true) {
+                            await _refreshUI();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                );
+              }
+            },
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => MyPopup(),
-          );
+        onPressed: () async {
+          await _showAddDialog();
         },
         child: Icon(Icons.add),
       ),

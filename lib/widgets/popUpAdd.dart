@@ -10,13 +10,12 @@ class MyPopup extends StatefulWidget {
 
 class _MyPopupState extends State<MyPopup> {
   final _formKey = GlobalKey<FormState>();
+  bool _isBookmarkSaved = false;
   TextEditingController _titleController = TextEditingController();
   TextEditingController _linkController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
-  TextEditingController _categoryController = TextEditingController();
   int? _selectedCategoryId;
   List<CategoryMark>? _categories;
-
   @override
   void initState() {
     super.initState();
@@ -43,153 +42,199 @@ class _MyPopupState extends State<MyPopup> {
     _loadCategories();
   }
 
+  Future<void> _showCreateCategoryDialog() async {
+    String? categoryNameInput; // Cambiato da 'String' a 'String?'
+
+    categoryNameInput = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Crea nuova categoria'),
+          content: TextField(
+            onChanged: (value) => categoryNameInput = value,
+            decoration: InputDecoration(labelText: 'Nome categoria'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Chiudi il dialogo senza salvare
+              },
+              child: Text('Annulla'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (categoryNameInput != null &&
+                    categoryNameInput!.isNotEmpty) {
+                  await _addCategory(categoryNameInput!);
+
+                  // Chiudi il dialogo e restituisci il nome della nuova categoria
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Aggiungi'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (categoryNameInput != null && categoryNameInput!.isNotEmpty) {
+      // Aggiorna la lista delle categorie e seleziona la nuova categoria
+      _loadCategories();
+      setState(() {
+        _selectedCategoryId = _categories!
+            .firstWhere(
+              (category) => category.titolo == categoryNameInput,
+              orElse: () => null!,
+            )
+            ?.id_category;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Container(
-        padding: EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Titolo',
+      child: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Container(
+          height: 500,
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: 'Titolo',
+                    hintText: 'Titolo',
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Inserisci Titolo';
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Inserisci un titolo';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _linkController,
-                decoration: InputDecoration(
-                  labelText: 'Link',
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _linkController,
+                  decoration: InputDecoration(
+                    labelText: 'Link',
+                    hintText: 'https://wwww.google.com/',
+                  ),
+                  validator: (value) {
+                    if (value!.isNotEmpty &&
+                        !RegExp(r'^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$')
+                            .hasMatch(value!)) {
+                      return 'Inserisci un link valido';
+                    }
+                  },
                 ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Inserisci un link';
-                  } else if (!RegExp(r'^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$')
-                      .hasMatch(value)) {
-                    return 'Inserisci un link valido';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  labelText: 'Descrizione',
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _descriptionController,
+                  textCapitalization: TextCapitalization.words,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Descrizione',
+                    hintText: 'Descrizione',
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  DropdownButton<int>(
-                    value: _selectedCategoryId,
-                    items: _categories!.map((category) {
-                      return DropdownMenuItem<int>(
-                        value: category.id_category,
-                        child: Text(
-                          category.titolo,
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
+                SizedBox(height: 20),
+                DropdownButtonFormField<int>(
+                  value: _selectedCategoryId,
+                  onChanged: (newValue) {
+                    if (newValue != null && newValue == -1) {
+                      // Il valore -1 indica l'opzione di creare una nuova categoria
+                      _showCreateCategoryDialog();
+                    } else {
                       setState(() {
-                        _selectedCategoryId = value;
+                        _selectedCategoryId = newValue as int?;
                       });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      // Show a dialog to input a new category name
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Nuova Categoria'),
-                            content: TextField(
-                              controller: _categoryController,
-                              onChanged: (value) {},
-                              decoration: InputDecoration(
-                                hintText: 'Categoria',
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Annulla'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  // Add the new category
-                                  String categoryName =
-                                      _categoryController.text;
-
-                                  _addCategory(categoryName);
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Aggiungi'),
-                              ),
-                            ],
+                    }
+                  },
+                  items: [
+                    ..._categories?.map((category) {
+                          return DropdownMenuItem<int>(
+                            value: category.id_category,
+                            child: Text(category.titolo),
                           );
-                        },
-                      );
-                    },
+                        }).toList() ??
+                        [],
+                    DropdownMenuItem<int>(
+                      value: -1,
+                      child: Row(
+                        children: [
+                          Icon(Icons.add,
+                              color: Colors
+                                  .blue), // Icona "+" per indicare la creazione
+                          SizedBox(width: 8),
+                          Text('Crea nuova categoria'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Categoria',
                   ),
-                ],
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    // Create a BookMark object with the form data
-                    BookMark newBookmark = BookMark(
-                      id_category: _selectedCategoryId!,
-                      titolo: _titleController.text,
-                      url: _linkController.text,
-                      descrizione: _descriptionController.text,
-                    );
-
-                    // Add the new bookmark to the database
-                    int bookmarkId =
-                        await DatabaseHelper.addBookMark(newBookmark);
-
-                    // Print or handle the saved bookmark as needed
-                    print('Saved Bookmark with ID: $bookmarkId');
-
-                    // Close the popup
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text(
-                  'Salva',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1!
-                      .copyWith(color: Colors.white),
+                  validator: (value) {
+                    if (value == null || value == -1) {
+                      return 'Seleziona una categoria o crea una nuova categoria';
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
-                style: ElevatedButton.styleFrom(
-                  primary: Theme.of(context).colorScheme.secondary,
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      BookMark newBookmark = BookMark(
+                        id_category: _selectedCategoryId!,
+                        titolo: _titleController.text,
+                        url: _linkController.text,
+                        descrizione: _descriptionController.text,
+                      );
+
+                      int bookmarkId =
+                          await DatabaseHelper.addBookMark(newBookmark);
+
+                      print('Saved Bookmark with ID: $bookmarkId');
+
+                      setState(() {
+                        _isBookmarkSaved = true;
+                      });
+                      Navigator.of(context).pop(isBookmarkSaved());
+                    }
+                  },
+                  child: Text(
+                    'Salva',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).colorScheme.secondary,
+                    minimumSize: Size(double.maxFinite, 50),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  // funzione per gestire se e stato inserito un nuovo record
+  // true verra refreshata la UI
+  bool isBookmarkSaved() {
+    return _isBookmarkSaved;
   }
 }

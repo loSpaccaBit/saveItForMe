@@ -39,6 +39,8 @@ dependencies:
   sqflite: ^2.3.1
   path: ^1.8.3
   xen_popup_card: ^0.0.3+2
+  auto_size_text: ^3.0.0
+  webview_flutter: ^4.5.0
 
 dev_dependencies:
   flutter_test:

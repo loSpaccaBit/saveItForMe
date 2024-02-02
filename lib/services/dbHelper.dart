@@ -79,4 +79,14 @@ class DatabaseHelper {
     return List.generate(
         maps.length, (index) => BookMark.fromJson(maps[index]));
   }
+
+  // static Future<List<BookMark>?> getAllBookMark() async {
+  //   final db = await _getDB();
+  //   final List<Map<String, dynamic>> maps = await db.query("BookMark");
+  //   if (maps.isEmpty) {
+  //     return null;
+  //   }
+  //   return List.generate(
+  //       maps.length, (index) => BookMark.fromJson(maps[index]));
+  // }
 }
