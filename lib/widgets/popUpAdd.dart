@@ -4,6 +4,11 @@ import 'package:save_it_forme/models/category.dart';
 import 'package:save_it_forme/services/dbHelper.dart';
 
 class MyPopup extends StatefulWidget {
+  const MyPopup({Key? key, this.url, this.title, this.description})
+      : super(key: key);
+  final String? url;
+  final String? title;
+  final String? description;
   @override
   _MyPopupState createState() => _MyPopupState();
 }
@@ -20,6 +25,7 @@ class _MyPopupState extends State<MyPopup> {
   void initState() {
     super.initState();
     _loadCategories();
+    _checkSaved();
   }
 
   Future<void> _loadCategories() async {
@@ -40,6 +46,13 @@ class _MyPopupState extends State<MyPopup> {
     print('Added Category with ID: $categoryId');
 
     _loadCategories();
+  }
+
+  void _checkSaved() {
+    if (widget.url != null) {
+      _linkController.text = widget.url!;
+      _descriptionController.text = widget.description!;
+    }
   }
 
   Future<void> _showCreateCategoryDialog() async {
@@ -138,7 +151,6 @@ class _MyPopupState extends State<MyPopup> {
                 SizedBox(height: 20),
                 TextFormField(
                   controller: _descriptionController,
-                  textCapitalization: TextCapitalization.words,
                   maxLines: 3,
                   decoration: InputDecoration(
                     labelText: 'Descrizione',

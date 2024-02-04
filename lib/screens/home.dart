@@ -14,8 +14,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<List<CategoryMark>>? _bookmarksFuture;
-  Future<List<BookMark>>? _bookMarks;
+  late List<CategoryMark>? _categoryMarks = [];
+  late List<BookMark>? _bookMarks = [];
+  late int _countBookMark = -1;
+  CategoryMark? _selectedCategory;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -24,22 +27,48 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCategory() async {
-    final List<CategoryMark>? bookmarks = await DatabaseHelper.getAllCategory();
+    final List<CategoryMark>? category = await DatabaseHelper.getAllCategory();
+    print('Loading category: $category');
     setState(() {
-      _bookmarksFuture = Future.value(bookmarks);
+      _categoryMarks = category;
     });
   }
 
   Future<void> _loadBookmarks() async {
     final List<BookMark>? bookmarks = await DatabaseHelper.getAllBookMark();
+    print('Loading bookmarks: $bookmarks');
+    print(_bookMarks);
+    if (bookmarks != null) {
+      setState(() {
+        _bookMarks = bookmarks;
+      });
+    } else {
+      setState(() {
+        _bookMarks = [];
+      });
+    }
+  }
+
+  Future<void> _countAll() async {
+    final int count = await DatabaseHelper.countAllBookMarkByCategory(
+        CategoryMark(id_category: 2, titolo: 'Test'));
     setState(() {
-      _bookMarks = Future.value(bookmarks);
+      _countBookMark = count;
     });
   }
 
   Future<void> _refreshUI() async {
-    await _loadCategory();
-    await _loadBookmarks();
+    try {
+      print('Refreshing UI...');
+      await _loadCategory();
+      await _loadBookmarks();
+      await _countAll();
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error in _refreshUI: $e');
+    }
   }
 
   Future<void> _showAddDialog() async {
@@ -51,7 +80,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (bookmarkSaved == true) {
-      await _loadBookmarks();
+      await _refreshUI();
     }
   }
 
@@ -94,66 +123,67 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          FutureBuilder<List<CategoryMark>>(
-            future: _bookmarksFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularIndicatorCustom();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No bookmarks available.');
-              } else {
-                CategoryMark data = snapshot.data![0];
-                return Container(
-                  child: Center(
-                    child: Text(
-                      '${data.titolo}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline1!
-                          .copyWith(fontSize: 25),
-                    ),
-                  ),
-                );
-              }
-            },
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              DropdownButton<CategoryMark>(
+                value: _selectedCategory,
+                items: (_categoryMarks ?? []).asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final category = entry.value;
+
+                  return DropdownMenuItem<CategoryMark>(
+                    value: category,
+                    child: Text(category.titolo),
+                  );
+                }).toList(),
+                onChanged: (CategoryMark? selectedCategory) {
+                  setState(() {
+                    // Find the selected category based on index
+                    final index = (_categoryMarks ?? [])
+                        .indexWhere((cat) => cat == selectedCategory);
+                    if (index != -1) {
+                      _selectedCategory = _categoryMarks![index];
+                    }
+                  });
+                },
+              ),
+              Text(
+                _selectedCategory != null
+                    ? 'Book ${_countBookMark} - ${_selectedCategory!.titolo}'
+                    : 'Book ${_countBookMark}',
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+            ],
           ),
-          FutureBuilder<List<BookMark>>(
-            future: _bookMarks,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularIndicatorCustom();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-                return Text('No bookmarks available.');
-              } else {
-                // Accedi ai dati come lista di BookMark
-                List<BookMark> bookmarks = snapshot.data!;
-                return Expanded(
+          (_bookMarks!.isEmpty || _bookMarks == null)
+              ? Expanded(
+                  child: Center(
+                  child: Text(
+                    'Nessuna nota 📝 trovata 💔',
+                    style: Theme.of(context).textTheme.headline1,
+                  ),
+                ))
+              : Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // number of items in each row
-                      mainAxisSpacing: 8.0, // spacing between rows
-                      crossAxisSpacing: 8.0, // spacing between columns
+                      crossAxisCount: 2, 
+                      mainAxisSpacing: 8.0, 
+                      crossAxisSpacing: 8.0, 
                     ),
-                    itemCount: bookmarks.length,
+                    itemCount: _bookMarks!.length,
                     itemBuilder: (context, index) {
                       return BookMarkCard(
-                        bookMark: bookmarks[index],
-                        onDelete: (bool values) async {
-                          if (values == true) {
-                            await _refreshUI();
-                          }
-                        },
-                      );
+                          bookMark: _bookMarks![index],
+                          onDelete: (bool value) async {
+                            if (value) {
+                              await _refreshUI();
+                            }
+                          });
                     },
                   ),
-                );
-              }
-            },
-          ),
+                ),
         ],
       ),
       floatingActionButton: FloatingActionButton(

@@ -80,6 +80,25 @@ class DatabaseHelper {
         maps.length, (index) => BookMark.fromJson(maps[index]));
   }
 
+  static Future<int> countAllBookMarkByCategory(
+      CategoryMark categoryMark) async {
+    final db = await _getDB();
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM BookMark WHERE id_category = ${categoryMark.id_category}',
+    );
+
+    print(result);
+
+    if (result.isEmpty || result[0]['count'] == null) {
+      return 0;
+    }
+
+    int count = result[0]['count'];
+    print(count);
+    return count;
+  }
+
   // static Future<List<BookMark>?> getAllBookMark() async {
   //   final db = await _getDB();
   //   final List<Map<String, dynamic>> maps = await db.query("BookMark");

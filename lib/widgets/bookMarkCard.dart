@@ -29,14 +29,14 @@ class _BookMarkCardState extends State<BookMarkCard> {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-          minWidth: 100, minHeight: 150, maxWidth: 150, maxHeight: 250),
+          minWidth: 100, minHeight: 100, maxWidth: 150, maxHeight: 250),
       child: GestureDetector(
         onTap: () {
           print('Tap');
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WebView(
+              builder: (context) => WebViewModule(
                 bookMark: widget.bookMark,
               ),
             ),
@@ -64,43 +64,47 @@ class _BookMarkCardState extends State<BookMarkCard> {
                 ),
                 enableFeedback: true,
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Posiziona la Row a destra
-                children: [
-                  Spacer(), // Aggiunto Spacer per spingere gli IconButton a destra
-                  IconButton(
-                    onPressed: () {
-                      print('Edit');
-                    },
-                    icon: Icon(Icons.edit_note),
-                    iconSize: 20,
-                    style: Theme.of(context).iconButtonTheme.style!.copyWith(
-                      backgroundColor: MaterialStateColor.resolveWith((states) {
-                        return Colors.green; // Default color
-                      }),
-                    ),
+              // Row(
+              //   crossAxisAlignment: CrossAxisAlignment.center,
+              //   mainAxisAlignment:
+              //       MainAxisAlignment.center, // Posiziona la Row a destra
+              //   children: [
+              //     Spacer(), // Aggiunto Spacer per spingere gli IconButton a destra
+              //     IconButton(
+              //       onPressed: () {
+              //         print('Edit');
+              //       },
+              //       icon: Icon(Icons.edit_note),
+              //       iconSize: 20,
+              //       style: Theme.of(context).iconButtonTheme.style!.copyWith(
+              //         backgroundColor: MaterialStateColor.resolveWith((states) {
+              //           return Colors.green; // Default color
+              //         }),
+              //       ),
+              //     ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton(
+                  onPressed: () async {
+                    print(
+                        'BookMark Eliminato!\nID : ${widget.bookMark.id_bookMark}');
+                    await DatabaseHelper.deleteBookMark(widget.bookMark);
+                    setState(() {
+                      _deleted = true;
+                    });
+                    return widget.onDelete(isDeleted());
+                    //_deleted = _deleted;
+                  },
+                  icon: Icon(Icons.delete_forever),
+                  style: Theme.of(context).iconButtonTheme.style!.copyWith(
+                    backgroundColor: MaterialStateColor.resolveWith((states) {
+                      return Colors.orange; // Default color
+                    }),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      print(
-                          'BookMark Eliminato!\nID : ${widget.bookMark.id_bookMark}');
-                      await DatabaseHelper.deleteBookMark(widget.bookMark);
-                      setState(() {
-                        _deleted = true;
-                      });
-                      _deleted = _deleted;
-                    },
-                    icon: Icon(Icons.delete_forever),
-                    style: Theme.of(context).iconButtonTheme.style!.copyWith(
-                      backgroundColor: MaterialStateColor.resolveWith((states) {
-                        return Colors.orange; // Default color
-                      }),
-                    ),
-                  ),
-                ],
+                ),
               ),
+              //   ],
+              // ),
             ],
           ),
         ),

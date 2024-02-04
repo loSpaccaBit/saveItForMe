@@ -71,10 +71,55 @@ class ThemeClass {
       ),
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: GoogleFonts.nunito(
+        color: _themeClass.textLightColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
       menuStyle: MenuStyle(
         backgroundColor: MaterialStateColor.resolveWith((states) {
           return _themeClass.lightPrimaryColor;
         }),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      labelStyle: GoogleFonts.nunito(
+        color: _themeClass.textLightColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+      // Bordi abilitati (non in errore, senza focus)
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0), // Bordo arrotondato
+        borderSide: BorderSide(
+          color: Colors.black,
+          width: 1.0,
+        ),
+      ),
+      // Bordi in errore
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(
+          color: Colors.red,
+          width: 1.0,
+        ),
+      ),
+      // Bordi con focus
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(
+          color: _themeClass.secondaryColor,
+          width: 2.0,
+        ),
+      ),
+      // Bordi disabilitati
+      // Bordi in errore con focus
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(
+          color: Colors.red,
+          width: 2.0,
+        ),
       ),
     ),
     listTileTheme: ListTileThemeData(
@@ -200,7 +245,6 @@ class ThemeClass {
         ),
       ),
     ),
-  
     listTileTheme: ListTileThemeData(
       titleTextStyle: GoogleFonts.nunito(
         color: _themeClass.textDarkColor,
