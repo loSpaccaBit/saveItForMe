@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -163,9 +163,9 @@ class DatabaseHelper {
       String filePath = '${documentsDirectory.path}/backup_data.json';
 
       File jsonFile = File(filePath);
-      // await jsonFile.writeAsString(jsonData);
-      await FileSaver.instance
-          .saveFile(name: 'backup_saveit_forme', file: jsonFile);
+       await jsonFile.writeAsString(jsonData);
+      // await FileSaver.instance
+      //     .saveFile(name: 'backup_saveit_forme', file: jsonFile);
       Fluttertoast.showToast(
           msg: "Backup salvato con successo!",
           toastLength: Toast.LENGTH_SHORT,
