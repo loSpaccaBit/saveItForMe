@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:save_it_forme/widgets/popUpAdd.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:save_it_forme/models/bookMark.dart';
+import 'package:save_it_forme/themes/circularProgress.dart';
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:iconly/iconly.dart';
 import 'package:share_plus/share_plus.dart';
@@ -28,7 +29,6 @@ class _WebViewModuleState extends State<WebViewModule> {
   late final WebViewController _controller;
   var _selectedTab = _SelectedTab.arrow_left_circle;
   bool isOpened = false;
-
   void _handleIndexChanged(int i) {
     setState(() {
       _selectedTab = _SelectedTab.values[i];

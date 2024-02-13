@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ThemeClass {
-  Color lightPrimaryColor = Color.fromRGBO(255, 255, 244, 1);
+  Color lightPrimaryColor = const Color.fromRGBO(255, 255, 244, 1);
   Color darkPrimaryColor = const Color.fromRGBO(17, 24, 39, 1);
-  Color secondaryColor = Color.fromRGBO(89, 147, 255, 1);
-  Color lightCardColor = Color.fromRGBO(255, 255, 240, 1);
-  Color darkCardColor = Color.fromRGBO(32, 41, 58, 1);
+  Color secondaryColor = const Color.fromRGBO(89, 147, 255, 1);
+  Color lightCardColor = const Color.fromRGBO(255, 255, 240, 1);
+  Color darkCardColor = const Color.fromRGBO(32, 41, 58, 1);
 
   Color textLightColor = Colors.black;
   Color textDarkColor = Colors.white;
@@ -31,6 +31,9 @@ class ThemeClass {
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
+    ),
+    appBarTheme: AppBarTheme(
+      color: _themeClass.secondaryColor,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       foregroundColor: Colors.white,
@@ -137,6 +140,28 @@ class ThemeClass {
     cardTheme: CardTheme(
       color: _themeClass.lightCardColor,
     ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style:
+          ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.lightCardColor;
+      }), iconColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.textLightColor;
+      }), foregroundColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.textLightColor;
+      }), textStyle: MaterialStateTextStyle.resolveWith((states) {
+        return (GoogleFonts.nunito(
+          color: _themeClass.textLightColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ));
+      }), minimumSize: MaterialStateProperty.resolveWith((states) {
+        return Size(double.maxFinite, 50);
+      }), shape: MaterialStateProperty.resolveWith((states) {
+        return RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        );
+      })),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -158,6 +183,9 @@ class ThemeClass {
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
+    ),
+    appBarTheme: AppBarTheme(
+      color: _themeClass.secondaryColor,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       foregroundColor: Colors.white,
@@ -259,6 +287,28 @@ class ThemeClass {
     ),
     cardTheme: CardTheme(
       color: _themeClass.darkCardColor,
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style:
+          ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.darkCardColor;
+      }), iconColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.textDarkColor;
+      }), foregroundColor: MaterialStateColor.resolveWith((states) {
+        return _themeClass.textDarkColor;
+      }), textStyle: MaterialStateTextStyle.resolveWith((states) {
+        return (GoogleFonts.nunito(
+          color: _themeClass.textDarkColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ));
+      }), minimumSize: MaterialStateProperty.resolveWith((states) {
+        return Size(double.maxFinite, 50);
+      }), shape: MaterialStateProperty.resolveWith((states) {
+        return RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        );
+      })),
     ),
   );
 }

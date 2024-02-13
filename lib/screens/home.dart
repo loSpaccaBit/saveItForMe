@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:save_it_forme/screens/settings.dart';
 import 'package:save_it_forme/services/dbHelper.dart';
 import 'package:save_it_forme/themes/circularProgress.dart';
 import 'package:save_it_forme/widgets/popUpAdd.dart';
@@ -31,11 +32,28 @@ class _HomePageState extends State<HomePage> {
     print('Loading category: $category');
     setState(() {
       _categoryMarks = category;
+      _selectedCategory = category![0];
     });
   }
 
-  Future<void> _loadBookmarks() async {
-    final List<BookMark>? bookmarks = await DatabaseHelper.getAllBookMark();
+  // Future<void> _loadBookmarks() async {
+  //   final List<BookMark>? bookmarks = await DatabaseHelper.getAllBookMark();
+  //   print('Loading bookmarks: $bookmarks');
+  //   print(_bookMarks);
+  //   if (bookmarks != null) {
+  //     setState(() {
+  //       _bookMarks = bookmarks;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _bookMarks = [];
+  //     });
+  //   }
+  // }
+
+  Future<void> _loadBookmarks(CategoryMark categoryMark) async {
+    final List<BookMark>? bookmarks =
+        await DatabaseHelper.getAllBookMarkByCategory(categoryMark);
     print('Loading bookmarks: $bookmarks');
     print(_bookMarks);
     if (bookmarks != null) {
@@ -49,9 +67,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _countAll() async {
-    final int count = await DatabaseHelper.countAllBookMarkByCategory(
-        CategoryMark(id_category: 2, titolo: 'Test'));
+  Future<void> _countAll(CategoryMark categoryMark) async {
+    final int count =
+        await DatabaseHelper.countAllBookMarkByCategory(categoryMark);
     setState(() {
       _countBookMark = count;
     });
@@ -61,8 +79,8 @@ class _HomePageState extends State<HomePage> {
     try {
       print('Refreshing UI...');
       await _loadCategory();
-      await _loadBookmarks();
-      await _countAll();
+      await _loadBookmarks(_selectedCategory!);
+      await _countAll(_selectedCategory!);
       setState(() {
         isLoading = false;
       });
@@ -117,45 +135,32 @@ class _HomePageState extends State<HomePage> {
               ),
               IconButton(
                 onPressed: () {
-                  // Handle settings button click
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SettingsPage()));
                 },
                 icon: Icon(Icons.settings),
               ),
             ],
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              DropdownButton<CategoryMark>(
-                value: _selectedCategory,
-                items: (_categoryMarks ?? []).asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final category = entry.value;
-
-                  return DropdownMenuItem<CategoryMark>(
-                    value: category,
-                    child: Text(category.titolo),
-                  );
-                }).toList(),
-                onChanged: (CategoryMark? selectedCategory) {
-                  setState(() {
-                    // Find the selected category based on index
-                    final index = (_categoryMarks ?? [])
-                        .indexWhere((cat) => cat == selectedCategory);
-                    if (index != -1) {
-                      _selectedCategory = _categoryMarks![index];
-                    }
-                  });
-                },
-              ),
-              Text(
-                _selectedCategory != null
-                    ? 'Book ${_countBookMark} - ${_selectedCategory!.titolo}'
-                    : 'Book ${_countBookMark}',
-                style: Theme.of(context).textTheme.bodyText1,
-              ),
-            ],
+          Center(
+            child: DropdownButton<CategoryMark>(
+              value: _selectedCategory,
+              items: _categoryMarks!.map((categoryMark) {
+                return DropdownMenuItem<CategoryMark>(
+                  value: categoryMark,
+                  child: Text(categoryMark.titolo),
+                );
+              }).toList(),
+              style: Theme.of(context).textTheme.headline1,
+              borderRadius: BorderRadius.circular(20),
+              onChanged: (value) async {
+                setState(() {
+                  _selectedCategory = value;
+                });
+                await _loadBookmarks(_selectedCategory!);
+                await _countAll(_selectedCategory!);
+              },
+            ),
           ),
           (_bookMarks!.isEmpty || _bookMarks == null)
               ? Expanded(
@@ -168,9 +173,9 @@ class _HomePageState extends State<HomePage> {
               : Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, 
-                      mainAxisSpacing: 8.0, 
-                      crossAxisSpacing: 8.0, 
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8.0,
+                      crossAxisSpacing: 8.0,
                     ),
                     itemCount: _bookMarks!.length,
                     itemBuilder: (context, index) {
