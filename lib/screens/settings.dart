@@ -3,7 +3,9 @@ import 'package:iconly/iconly.dart';
 import 'package:save_it_forme/services/dbHelper.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({Key? key, required this.callbackAction})
+      : super(key: key);
+  final Future<void> callbackAction;
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
@@ -30,9 +32,10 @@ class _SettingsPageState extends State<SettingsPage> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.0),
                 child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       print('Importa');
                       DatabaseHelper.pickFile();
+                      await widget.callbackAction;
                     },
                     icon: Icon(IconlyBold.download),
                     label: Text('Importa')),
@@ -46,6 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onPressed: () async {
                       print('Esporta');
                       await DatabaseHelper.exportAllDB();
+                      await widget.callbackAction;
                     },
                     icon: Icon(IconlyBold.upload),
                     label: Text('Esporta')),

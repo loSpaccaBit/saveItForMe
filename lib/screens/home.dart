@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   // }
 
   Future<void> _loadBookmarks(CategoryMark categoryMark) async {
+    print('Carico BookMark');
     final List<BookMark>? bookmarks =
         await DatabaseHelper.getAllBookMarkByCategory(categoryMark);
     print('Loading bookmarks: $bookmarks');
@@ -148,7 +149,10 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => SettingsPage()));
+                            builder: (context) => SettingsPage(
+                                  callbackAction:
+                                      _loadBookmarks(_selectedCategory!),
+                                )));
                   },
                   icon: Icon(Icons.settings),
                 ),
