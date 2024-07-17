@@ -228,11 +228,11 @@ class _MyPopupState extends State<MyPopup> {
                     'Salva',
                     style: Theme.of(context)
                         .textTheme
-                        .bodyText1!
+                        .bodyLarge!
                         .copyWith(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.secondary,
+                    overlayColor: Theme.of(context).colorScheme.secondary,
                     minimumSize: Size(double.maxFinite, 50),
                   ),
                 ),

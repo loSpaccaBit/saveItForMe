@@ -16,7 +16,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('⚙️ Impostazioni'),
-        titleTextStyle: Theme.of(context).textTheme.headline1!.copyWith(
+        titleTextStyle: Theme.of(context).textTheme.headlineLarge!.copyWith(
               fontSize: 25,
               color: Colors.white,
             ),

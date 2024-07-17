@@ -21,12 +21,12 @@ class ThemeClass {
       secondary: _themeClass.secondaryColor,
     ),
     textTheme: TextTheme(
-      headline1: GoogleFonts.nunito(
+      headlineLarge: GoogleFonts.nunito(
         color: _themeClass.textLightColor,
         fontSize: 20,
         fontWeight: FontWeight.w800,
       ),
-      bodyText1: GoogleFonts.nunito(
+      bodyLarge: GoogleFonts.nunito(
         color: _themeClass.textLightColor,
         fontSize: 16,
         fontWeight: FontWeight.w700,
@@ -173,12 +173,12 @@ class ThemeClass {
       secondary: _themeClass.secondaryColor,
     ),
     textTheme: TextTheme(
-      headline1: GoogleFonts.nunito(
+      headlineLarge: GoogleFonts.nunito(
         color: _themeClass.textDarkColor,
         fontSize: 20,
         fontWeight: FontWeight.w800,
       ),
-      bodyText1: GoogleFonts.nunito(
+      bodyLarge: GoogleFonts.nunito(
         color: _themeClass.textDarkColor,
         fontSize: 16,
         fontWeight: FontWeight.w700,

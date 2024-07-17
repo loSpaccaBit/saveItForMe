@@ -163,7 +163,7 @@ class DatabaseHelper {
       String filePath = '${documentsDirectory.path}/backup_data.json';
 
       File jsonFile = File(filePath);
-       await jsonFile.writeAsString(jsonData);
+      await jsonFile.writeAsString(jsonData);
       // await FileSaver.instance
       //     .saveFile(name: 'backup_saveit_forme', file: jsonFile);
       Fluttertoast.showToast(

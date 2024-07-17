@@ -127,13 +127,13 @@ class _HomePageState extends State<HomePage> {
                   child: Text.rich(
                     TextSpan(
                       text: 'Save It ',
-                      style: Theme.of(context).textTheme.headline1,
+                      style: Theme.of(context).textTheme.headlineLarge,
                       children: <TextSpan>[
                         TextSpan(
                           text: 'ForMe',
                           style: Theme.of(context)
                               .textTheme
-                              .headline1!
+                              .headlineLarge!
                               .copyWith(
                                 fontSize: 22,
                                 color: Colors.white,
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                     child: Text(categoryMark.titolo),
                   );
                 }).toList(),
-                style: Theme.of(context).textTheme.headline1,
+                style: Theme.of(context).textTheme.headlineLarge,
                 borderRadius: BorderRadius.circular(20),
                 onChanged: (value) async {
                   setState(() {
@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                     child: Text(
                       'Nessuna nota 📝 trovata 💔',
-                      style: Theme.of(context).textTheme.headline1,
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
                   ))
                 : Expanded(

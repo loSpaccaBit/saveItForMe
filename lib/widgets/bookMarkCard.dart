@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:save_it_forme/models/bookMark.dart';
 import 'package:save_it_forme/services/dbHelper.dart';
-import 'package:save_it_forme/modules/webView.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class BookMarkCard extends StatefulWidget {
   const BookMarkCard({
@@ -20,9 +20,21 @@ class BookMarkCard extends StatefulWidget {
 
 class _BookMarkCardState extends State<BookMarkCard> {
   bool _deleted = false;
+  final ChromeSafariBrowser browser = new ChromeSafariBrowser();
 
   bool isDeleted() {
     return _deleted;
+  }
+
+  @override
+  void initState() {
+    browser.addMenuItem(new ChromeSafariBrowserMenuItem(
+        id: 1,
+        label: 'Custom item menu 1',
+        action: (url, title) {
+          print('Custom item menu 1 clicked!');
+        }));
+    super.initState();
   }
 
   @override
@@ -31,16 +43,16 @@ class _BookMarkCardState extends State<BookMarkCard> {
       constraints: BoxConstraints(
           minWidth: 100, minHeight: 100, maxWidth: 150, maxHeight: 250),
       child: GestureDetector(
-        onTap: () {
-          print('Tap');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WebViewModule(
-                bookMark: widget.bookMark,
-              ),
-            ),
-          );
+        onTap: () async {
+          await browser.open(
+              url: Uri.parse("${widget.bookMark.url}"),
+              options: ChromeSafariBrowserClassOptions(
+                  android: AndroidChromeCustomTabsOptions(
+                      shareState: CustomTabsShareState.SHARE_STATE_OFF,
+                      isTrustedWebActivity: true),
+                  ios: IOSSafariOptions(
+                      barCollapsingEnabled: true,
+                      entersReaderIfAvailable: true)));
         },
         child: Card(
           child: Column(
@@ -52,14 +64,14 @@ class _BookMarkCardState extends State<BookMarkCard> {
                   '${widget.bookMark.titolo}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context).textTheme.headlineLarge,
                   minFontSize: 18,
                 ),
                 subtitle: AutoSizeText(
                   '${widget.bookMark.descrizione}',
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context).textTheme.bodyLarge,
                   minFontSize: 14,
                 ),
                 enableFeedback: true,
